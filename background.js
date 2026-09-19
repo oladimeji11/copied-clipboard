@@ -76,3 +76,44 @@ chrome.runtime.onStartup.addListener(() => {
     }
   });
 });
+
+// ── Inject into already-open tabs ──────────────────────────────────────────
+// Content scripts declared in the manifest are only injected into pages loaded
+// AFTER the extension starts. Every tab already open when the extension is
+// installed, updated, or reloaded has no content script and silently stops
+// recording copies, with no error and no visible sign. Re-inject explicitly so
+// existing tabs keep working.
+
+async function injectIntoOpenTabs() {
+  let tabs;
+  try {
+    tabs = await chrome.tabs.query({ url: ['http://*/*', 'https://*/*'] });
+  } catch (err) {
+    console.error('[ClipStack] tab query failed:', err);
+    return;
+  }
+
+  for (const tab of tabs) {
+    if (!tab.id) continue;
+
+    // The MAIN-world hook must be injected before the isolated-world script,
+    // matching the order the manifest declares them in.
+    for (const [file, world] of [['page-hook.js', 'MAIN'], ['content.js', 'ISOLATED']]) {
+      try {
+        await chrome.scripting.executeScript({
+          target: { tabId: tab.id, allFrames: true },
+          files: [file],
+          world,
+          injectImmediately: true
+        });
+      } catch (_) {
+        // Expected on restricted pages (chrome://, the Web Store, the PDF
+        // viewer) and on tabs that closed mid-loop. Both scripts guard against
+        // double-injection, so re-running on an already-injected tab is safe.
+      }
+    }
+  }
+}
+
+chrome.runtime.onInstalled.addListener(injectIntoOpenTabs);
+chrome.runtime.onStartup.addListener(injectIntoOpenTabs);
