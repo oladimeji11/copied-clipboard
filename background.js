@@ -1,4 +1,4 @@
-// ClipStack - Background Service Worker
+// Copied Clipboard - Background Service Worker
 // Receives copy events and maintains history in chrome.storage.local.
 
 const MAX_ITEMS = 200;
@@ -11,7 +11,7 @@ let writeQueue = Promise.resolve();
 
 function enqueue(mutate) {
   const next = writeQueue.then(mutate).catch((err) => {
-    console.error('[ClipStack] write failed:', err);
+    console.error('[Copied Clipboard] write failed:', err);
   });
   writeQueue = next;
   return next;
@@ -89,7 +89,7 @@ async function injectIntoOpenTabs() {
   try {
     tabs = await chrome.tabs.query({ url: ['http://*/*', 'https://*/*'] });
   } catch (err) {
-    console.error('[ClipStack] tab query failed:', err);
+    console.error('[Copied Clipboard] tab query failed:', err);
     return;
   }
 

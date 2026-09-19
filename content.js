@@ -1,11 +1,11 @@
-// ClipStack - Content Script
+// Copied Clipboard - Content Script
 // Captures copied text from page selections, form fields, and programmatic
 // clipboard writes, then forwards it to the background service worker.
 
 (() => {
   // Guard against double-injection (SPA navigations, re-injection on update).
-  if (window.__clipstackInstalled) return;
-  window.__clipstackInstalled = true;
+  if (window.__copiedInstalled) return;
+  window.__copiedInstalled = true;
 
   const MAX_LEN = 100000;
 
@@ -73,7 +73,7 @@
     // Only trust messages from this same frame; any page can postMessage.
     if (e.source !== window) return;
     const data = e.data;
-    if (!data || data.__clipstack !== true) return;
+    if (!data || data.__copied !== true) return;
     send(data.text, 'programmatic');
   });
 })();

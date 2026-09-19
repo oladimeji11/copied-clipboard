@@ -1,16 +1,16 @@
-// ClipStack - Page-context hook (MAIN world)
+// Copied Clipboard - Page-context hook (MAIN world)
 // Content scripts run in an isolated world and cannot observe the page's own
 // navigator.clipboard.writeText() calls. Those are how most "Copy" buttons
 // work (copy link, copy API key, copy 2FA code) and they often fire no copy
 // event at all, so they were silently missing from history.
 
 (() => {
-  if (window.__clipstackHooked) return;
-  window.__clipstackHooked = true;
+  if (window.__copiedHooked) return;
+  window.__copiedHooked = true;
 
   function report(text) {
     if (typeof text !== 'string' || !text.trim()) return;
-    window.postMessage({ __clipstack: true, text }, '*');
+    window.postMessage({ __copied: true, text }, '*');
   }
 
   const clip = navigator.clipboard;

@@ -1,4 +1,4 @@
-// ClipStack - Popup Script
+// Copied Clipboard - Popup Script
 
 const MAX = 200;
 let allClips = [];
